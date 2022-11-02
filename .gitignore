@@ -1,0 +1,5 @@
+/src/renderer/src/.*
+/src/renderer/node_modules
+
+/build
+/node_modules

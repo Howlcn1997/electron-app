@@ -1,0 +1,57 @@
+{
+  "name": "electron-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/app.js",
+  "scripts": {
+    "start": "npm run r:renderer & npm run r:main",
+    "r:renderer": "cd ./src/renderer && npm start",
+    "r:main": "electron .",
+    "build": "npm run build:renderer && npm run build:main",
+    "build:main": "electron-builder",
+    "build:renderer": "",
+    "start-renderer-server": "http-server ./build/renderer 8080",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.demo.app",
+    "directories": {
+      "output": "build/main"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Howlcn1997/electron-demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Howlcn1997/electron-demo/issues"
+  },
+  "homepage": "https://github.com/Howlcn1997/electron-demo#readme",
+  "devDependencies": {
+    "electron": "11.5.0",
+    "electron-builder": "^22.11.7",
+    "electron-localshortcut": "^3.2.1",
+    "electron-rebuild": "^3.2.9"
+  },
+  "dependencies": {
+    "better-sqlite3": "^7.6.2",
+    "crypto-js": "4.1.1",
+    "electron-is-dev": "^2.0.0",
+    "http-server": "^14.1.1",
+    "lodash": "4.17.21"
+  }
+}
