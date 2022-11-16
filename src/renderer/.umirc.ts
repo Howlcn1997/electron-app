@@ -3,5 +3,5 @@ export default {
   history: { type: "hash" },
   publicPath:
     process.env.NODE_ENV === "development" ? `http://localhost:8000/` : "./",
-  outputPath: "../../build/renderer",
+  outputPath: "../../release/app/renderer",
 };

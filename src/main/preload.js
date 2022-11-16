@@ -1,11 +1,12 @@
 process.once('loaded', () => {
-  const globalVariables = require('./global-variable').needSyncVariable;
+  const globalVariable = require('./config/global-variable').variable.value;
 
+  console.log('equire()', require('electron'));
   // 同步全局变量
-  const { getGlobal } = require('electron').remote;
-  globalVariables.forEach(key => {
-    global[key] = getGlobal(key);
-  });
+  // const { getGlobal } = require('electron').remote;
+  // globalVariable.forEach(key => {
+  //   global[key] = getGlobal(key);
+  // });
 
   // 封装ipcRenderer.send("SEND_TO")
   const _ipcRenderer = require('electron').ipcRenderer;

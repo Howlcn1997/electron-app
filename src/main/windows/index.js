@@ -4,4 +4,4 @@ function newWindow (name, props) {
   return create(props);
 }
 
-module.exports = newWindow;
+module.exports = { newWindow };

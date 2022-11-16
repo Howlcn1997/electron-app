@@ -1,5 +1,5 @@
 const { ipcMain, app } = require('electron');
-const { manager } = require('./browser');
+const manager = require('./browser');
 
 /**
  *
@@ -55,7 +55,9 @@ function bindIpcEvent () {
   };
 
   // 一般事件
-  const commonListeners = {};
+  const commonListeners = {
+    GET_GLOBAL_VARIABLE: () => {}
+  };
 
   /**
    * Q: send / on  与  invoke / handle 的差别?

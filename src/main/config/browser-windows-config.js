@@ -1,5 +1,5 @@
 const path = require('path');
-const preloadScript = path.join(global._APP_PATH_, './src/main/config/preload.js');
+const preloadScript = path.join(global._APP_PATH_, './preload.js');
 // 公共配置
 
 const commonConfig = {

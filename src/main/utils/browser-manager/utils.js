@@ -32,7 +32,9 @@ function convertedPosition (expression, boundsSize) {
   }
   // calc 暂时只支持 单运算符表达式 需要严格按照calc(数值 元算符 数值)
   if (isCalc(expression)) {
-    let [arg1, operator, arg2] = expression.replace(/(calc\()|\)/g, '').split(' ');
+    let [arg1, operator, arg2] = expression
+      .replace(/(calc\()|\)/g, '')
+      .split(' ');
     arg1 = isPercentage(arg1) ? (parseInt(arg1) / 100) * boundsSize : +arg1;
     arg2 = isPercentage(arg2) ? (parseInt(arg2) / 100) * boundsSize : +arg2;
     _result = operation(arg1, operator, arg2);
@@ -115,6 +117,71 @@ function isFatherSonRelationship (parentName, sonName) {
   );
 }
 
+function resetBrowser (instance, config) {
+  console.time('resetBrowser');
+  if ('x' in config || 'y' in config) {
+    instance.setPosition(config.x, config.y);
+  }
+  if ('width' in config || 'height' in config) {
+    instance.setSize(config.width, config.height);
+  }
+  if ('center' in config) {
+    instance.center();
+  }
+  if ('minHeight' in config || 'minWidth' in config) {
+    instance.setMinimumSize(config.minWidth, config.minHeight);
+  }
+  if ('resizable' in config) {
+    instance.setResizable(config.resizable);
+  }
+  if ('movable' in config) {
+    instance.setResizable(config.resizable);
+  }
+  if ('minimizable' in config) {
+    instance.setResizable(config.resizable);
+  }
+  if ('maximizable' in config) {
+    instance.setResizable(config.resizable);
+  }
+  if ('closable' in config) {
+    instance.setClosable(config.closable);
+  }
+  if ('focusable' in config) {
+    instance.setFocusable(config.focusable);
+  }
+  if ('alwaysOnTop' in config) {
+    const [alwaysOnTop, ...args] =
+      typeof config.alwaysOnTop === 'boolean'
+        ? [config.alwaysOnTop]
+        : config.alwaysOnTop.split(':');
+    instance.setAlwaysOnTop(alwaysOnTop, ...args);
+  }
+  if ('fullscreen' in config) {
+    instance.setFullscreen(config.fullscreen);
+  }
+  if ('fullscreenable' in config) {
+    instance.setFullscreenable(config.fullscreenable);
+  }
+  if ('simpleFullscreen' in config) {
+    instance.setSimpleFullScreen(config.simpleFullscreen);
+  }
+  if ('skipTaskbar' in config) {
+    instance.setSkipTaskbar(config.skipTaskbar);
+  }
+  if ('title' in config) {
+    instance.setTitle(config.title);
+  }
+  if ('loadURL' in config) {
+    // instance.loadURL(config.loadURL);
+    instance.webContents.loadURL(config.loadURL);
+  }
+  if ('loadFile' in config) {
+    instance.loadFile(config.loadFile);
+  }
+  console.timeEnd('resetBrowser');
+  return instance;
+}
+
 module.exports = {
   isFatherSonRelationship,
   setBoundsByPosition,
@@ -122,5 +189,6 @@ module.exports = {
   getNumberPosition,
   isPercentage,
   isCalc,
-  operation
+  operation,
+  resetBrowser
 };

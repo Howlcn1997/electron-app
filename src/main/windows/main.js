@@ -4,6 +4,9 @@ function create (props = {}) {
     height: 800,
     name: 'main',
     show: true,
+    webPreferences: {
+      enableRemoteModule: true
+    },
     ...props
   });
   main.loadURL(global._rendererView);

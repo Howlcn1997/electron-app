@@ -1,5 +1,6 @@
 /src/renderer/src/.*
 /src/renderer/node_modules
+/release
 
 /build
 /node_modules
