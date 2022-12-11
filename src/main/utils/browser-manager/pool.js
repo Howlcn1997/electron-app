@@ -5,7 +5,7 @@ const { resetBrowser } = require('./utils');
 const pool = [];
 
 class BrowserWindowPool {
-  constructor (defaultConfig = {}, depth = 1) {
+  constructor (defaultConfig = {}, depth = 2) {
     this.pool = pool;
     this._depth = depth;
     this._defaultConfig = defaultConfig;

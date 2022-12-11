@@ -19,7 +19,7 @@
  deleteSourceMaps();
  
  const configuration: webpack.Configuration = {
-   devtool: 'source-map',
+  //  devtool: 'source-map',
  
    mode: 'production',
  

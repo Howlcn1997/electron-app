@@ -4,6 +4,7 @@
 
 import webpack from "webpack";
 import webpackPaths from "./webpack.paths";
+import CopyWebpackPlugin from "copy-webpack-plugin";
 
 const configuration: webpack.Configuration = {
   stats: "errors-only",
@@ -40,13 +41,21 @@ const configuration: webpack.Configuration = {
    */
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
-    modules: ["node_modules"],
+    modules: [webpackPaths.srcPath, "node_modules"],
   },
 
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: webpackPaths.srcAppEntryPath,
+          to: webpackPaths.distAppEntryPath
+        }
+      ]
+    })
   ],
 };
 
