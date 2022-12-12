@@ -1,6 +1,7 @@
 /src/renderer/src/.*
 /src/renderer/node_modules
-/release
+/release/app/dist
+/release/app/node_modules
+/release/build
 
-/build
 /node_modules
