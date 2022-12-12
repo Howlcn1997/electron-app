@@ -1,7 +1,10 @@
-/src/renderer/src/.*
-/src/renderer/node_modules
-/release/app/dist
-/release/app/node_modules
-/release/build
+src/renderer/src/.*
+src/renderer/node_modules
+src/renderer/**/*.lock
 
-/node_modules
+release/app/dist
+release/app/node_modules
+release/build
+release/**/*.lock
+
+node_modules

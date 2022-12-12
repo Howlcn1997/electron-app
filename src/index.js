@@ -1,15 +1,18 @@
-const path = require('path');
+const path = require("path");
+const isDev = require("electron-is-dev");
+const appPath = require("electron").app.getAppPath();
+global.__APP_PATH__ = isDev ? appPath : path.join(appPath, "dist");
 
-const updaterRoot = path.join(__dirname, './updater');
-const appUpdaterPath = path.join(updaterRoot, 'app.updater.js');
-const mainUpdaterPath = path.join(updaterRoot, 'main.updater.js');
-const rendererUpdaterPath = path.join(updaterRoot, 'renderer.updater.js');
+const updaterRoot = path.join(global.__APP_PATH__, "./updater");
+const appUpdaterPath = path.join(updaterRoot, "app.updater.js");
+const mainUpdaterPath = path.join(updaterRoot, "main.updater.js");
+const rendererUpdaterPath = path.join(updaterRoot, "renderer.updater.js");
 
 // 启动electron-updater
 const appUpdater = require(appUpdaterPath);
 const mainUpdater = require(mainUpdaterPath);
 const rendererUpdater = require(rendererUpdaterPath);
-Object.assign(global.console, require('electron-log').functions);
+Object.assign(global.console, require("electron-log").functions);
 (async () => {
   // 应用级别检查更新
   appUpdater.initUpdater();

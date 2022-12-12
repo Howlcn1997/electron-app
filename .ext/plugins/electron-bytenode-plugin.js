@@ -20,27 +20,25 @@ class ElectronBytenodePlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.emit.tapPromise(
-      "BytenodeWebpackPlugin",
-      async (compilation) => {
-        for (const filename in compilation.assets) {
-          if (this.options.exclude(filename)) continue;
-          if (!/\.js$/.test(filename)) continue;
+    compiler.hooks.emit.tapPromise("BytenodeWebpackPlugin", async (compilation) => {
+      for (const filepath in compilation.assets) {
+        if (this.options.exclude(filepath)) continue;
+        if (!/\.js$/.test(filepath)) continue;
 
-          let source = Module.wrap(compilation.assets[filename].source());
-          const bytecode = await bytenode.compileElectronCode(source);
-          const bytecodeFilename = filename.replace(".js", ".jsc");
-          compilation.assets[bytecodeFilename] = {
-            source: () => bytecode,
-            size: () => bytecode.length,
-          };
-          source = `require('bytenode');\nrequire('./${bytecodeFilename
-            .split(path.sep)
-            .pop()}');`;
-          compilation.assets[filename] = new RawSource(source);
-        }
+        let source = Module.wrap(compilation.assets[filepath].source());
+        const filename = path.basename(filepath, ".js");
+        const jscCode = await bytenode.compileElectronCode(source);
+        const jscFilename = path.basename(filepath, ".js") + ".jsc";
+        const jscFilepath = filepath.replace(".js", ".jsc");
+
+        compilation.assets[jscFilepath] = {
+          source: () => jscCode,
+          size: () => jscCode.length,
+        };
+        source = `require('bytenode');\nrequire('./${jscFilename}');`;
+        compilation.assets[filepath] = new RawSource(source);
       }
-    );
+    });
   }
 }
 
