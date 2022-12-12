@@ -1,5 +1,5 @@
-const { ipcMain, app } = require('electron');
-const manager = require('./browser');
+const { ipcMain, app } = require("electron");
+const manager = require("./browser");
 
 /**
  *
@@ -7,31 +7,25 @@ const manager = require('./browser');
  * @param {String} channel 消息类型
  * @param {*} message 消息主体
  */
-function handleSendTo (e, { target, channel, message }) {
+function handleSendTo(e, { target, channel, message }) {
   const _targetInstance = manager.getInstance(target);
   if (!_targetInstance) return;
-  _targetInstance.webContents.send(
-    channel,
-    message,
-    e.sender.browserWindowOptions.name
-  );
+  _targetInstance.webContents.send(channel, message, e.sender.browserWindowOptions.name);
 }
 
 // 广播消息 （除发送方外的所有窗口）
-function handleMessageBus (e, { channel, message }) {
+function handleMessageBus(e, { channel, message }) {
   const _allWins = manager._wins;
   Object.keys(_allWins).forEach(
-    (winName) =>
-      e.sender.browserWindowOptions.name !== winName &&
-      _allWins[winName].webContents.send(channel, message)
+    (winName) => e.sender.browserWindowOptions.name !== winName && _allWins[winName].webContents.send(channel, message)
   );
 }
 
-function bindIpcEvent () {
+function bindIpcEvent() {
   // 获取数据相关事件
   const responsiveListeners = {
-    PING: () => new Promise().resolve('OK'),
-    GET_WIN_NAMES: () => Object.keys(manager._wins)
+    PING: () => new Promise().resolve("OK"),
+    GET_WIN_NAMES: () => Object.keys(manager._wins),
   };
 
   // 窗口相关事件
@@ -51,12 +45,12 @@ function bindIpcEvent () {
       } else {
         manager[action](...args);
       }
-    }
+    },
   };
 
   // 一般事件
   const commonListeners = {
-    GET_GLOBAL_VARIABLE: () => {}
+    GET_GLOBAL_VARIABLE: (e, { key }) => global[key],
   };
 
   /**
@@ -68,13 +62,13 @@ function bindIpcEvent () {
    */
 
   for (const k in commonListeners) {
-    ipcMain.handle('COMMON_IPC::' + k, commonListeners[k]);
+    ipcMain.handle("COMMON_IPC::" + k, commonListeners[k]);
   }
   for (const k in responsiveListeners) {
-    ipcMain.handle('RESPONSIVE_IPC::' + k, responsiveListeners[k]);
+    ipcMain.handle("RESPONSIVE_IPC::" + k, responsiveListeners[k]);
   }
   for (const k in browserListeners) {
-    ipcMain.on('BROWSER_IPC::' + k, browserListeners[k]);
+    ipcMain.on("BROWSER_IPC::" + k, browserListeners[k]);
   }
 }
 

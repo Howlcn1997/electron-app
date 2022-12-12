@@ -21,7 +21,7 @@ const configuration: webpack.Configuration = {
 
   mode: "production",
 
-  target: "electron-main",
+  target: "node",
 
   entry: {
     ["app.updater"]: path.join(webpackPaths.srcUpdaterPath, "app.updater.js"),
@@ -54,7 +54,7 @@ const configuration: webpack.Configuration = {
       NODE_ENV: "production",
     }),
 
-    new ElectronBytenodePlugin(),
+    // new ElectronBytenodePlugin(),
   ],
 };
 

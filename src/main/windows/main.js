@@ -1,15 +1,15 @@
-function create (props = {}) {
-  const main = require('../managers/browser').create({
+function create(props = {}) {
+  const main = require("../managers/browser").create({
     width: 800,
     height: 800,
-    name: 'main',
+    name: "main",
     show: true,
     webPreferences: {
-      enableRemoteModule: true
+      enableRemoteModule: true,
     },
-    ...props
+    ...props,
   });
-  main.loadURL(global._rendererView);
+  main.loadURL(global._RENDERER_ROOT_URL_);
   main.webContents.openDevTools();
   return main;
 }

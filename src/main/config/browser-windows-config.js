@@ -1,9 +1,9 @@
-const path = require('path');
-const preloadScript = path.join(global._APP_PATH_, './preload.js');
+const path = require("path");
+const preloadScript = path.join(global._APP_PATH_, "./preload.js");
 // 公共配置
 
 const commonConfig = {
-  backgroundColor: '#fff',
+  backgroundColor: "#fff",
   resizable: true,
   //   minimizable: true,
   //   maximizable: false,
@@ -14,7 +14,7 @@ const commonConfig = {
   show: false,
   hasShadow: true,
   autoHideMenuBar: true,
-  titleBarStyle: 'hiddenInset',
+  titleBarStyle: "hiddenInset",
   acceptFirstMouse: true,
   webPreferences: {
     nodeIntegrationInWorker: true,
@@ -25,8 +25,8 @@ const commonConfig = {
     webSecurity: false,
     spellcheck: false,
     webgl: true,
-    preload: preloadScript
-  }
+    preload: preloadScript,
+  },
 };
 
 // 开发环境配置
@@ -34,8 +34,8 @@ const devConfig = {
   ...commonConfig,
   webPreferences: {
     ...commonConfig.webPreferences,
-    devTools: true
-  }
+    devTools: true,
+  },
 };
 
 // 生产环境配置
@@ -43,8 +43,8 @@ const prodConfig = {
   ...commonConfig,
   webPreferences: {
     ...commonConfig.webPreferences,
-    devTools: false
-  }
+    devTools: false,
+  },
 };
 
 module.exports = { commonConfig, devConfig, prodConfig };
