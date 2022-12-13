@@ -1,7 +1,19 @@
 const path = require("path");
-const isDev = require("electron-is-dev");
-const appPath = require("electron").app.getAppPath();
-global._APP_PATH_ = isDev ? appPath : path.join(appPath, "dist");
+
+const { app } = require("electron");
+// 设置全局变量
+Object.assign(global, {
+  _IS_DEV_: require("electron-is-dev"),
+  _IS_WIN_: process.platform === "win32",
+  _IS_MAC_: process.platform === "darwin",
+  _APP_PATH_: require("electron-is-dev") ? app.getAppPath() : path.join(app.getAppPath(), "dist"),
+  _USER_DATA_: app.getPath("userData"),
+  _TEMP_PATH_: app.getPath("temp"),
+  _MAIN_ROOT_PATH_: "", // 主进程入口文件地址
+  _RENDERER_ROOT_URL_: "", // 渲染进程入口文件地址
+  _dbPath: "", // 数据库文件地址
+});
+// 替换console
 Object.assign(global.console, require("electron-log").functions);
 
 const updaterRoot = path.join(global._APP_PATH_, "./updater");
