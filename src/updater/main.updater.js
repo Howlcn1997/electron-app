@@ -1,4 +1,5 @@
 const path = require("path");
+const fsx = require("fs-extra");
 const { gt: versionGt } = require("./common/version");
 const { generateStagingPercentage } = require("./common/gray-release");
 // 版本判断依赖文件
@@ -8,10 +9,22 @@ const updateCacheDir = "%appData%/[appName]/updater/main";
 // 本地文件引导文件
 const indexPath = path.join(updateCacheDir, "index.json");
 
-function init() {
-  // 创建缓存目录
-  // 创建version1（快捷方式）
-  // 创建index.json
+let initSuccess = false;
+async function init({ depth = Infinity } = {}) {
+  if (initSuccess) return true;
+  await ensureDir(updateCacheDir);
+  // 有无index.json
+  const indexJsonExist = await fsx.pathExists(indexPath);
+  if (!indexJsonExist) {
+    const currentVersion = await getCurrentVersion();
+    await fsx.writeJSON(indexPath, { current: path.join(updateCacheDir, currentVersion), main: "" });
+  }
+
+  // 有无[version]资源【无则创建快捷方式】
+
+  // 有无结构标识文件stc.json
+
+  return initSuccess;
 }
 
 async function getResourceProd(rootPath, relativePath) {
@@ -32,8 +45,10 @@ async function checkUpdate() {
   const info =
     '{"version":"2.5.0-2022.12.13.12.01.01","stagingPercentage":"20","downloadRootUrl":"https://oss.51ifonts.com/client/download/main/"}';
   const infoJson = parseReleaseInfo(info, "json");
-  // 检查是否有新的更新
-  // 修改相关index.json文件信息
+  const needUpdate = await needUpdateCheck(infoJson);
+  if (!needUpdate) return false;
+  const initSuccess = await init();
+  if (!initSuccess) return false;
 }
 
 /**
@@ -60,40 +75,24 @@ async function needUpdateCheck({ version, stagingPercentage = 100 }) {
 }
 
 async function getCurrentVersion() {
-  const indexJson = await readJsonPromise(indexPath);
-  if (indexJson) {
+  try {
+    const indexJson = await fsx.readJSON(indexPath);
     return indexJson.version;
-  }
-  const originalIndexJson = await readJsonPromise(path.join(__dirname, "./index.json"));
-  if (originalIndexJson) {
+  } catch (e) {}
+  try {
+    const originalIndexJson = await fsx.readJSON(path.join(__dirname, "./index.json"));
     return originalIndexJson.main;
-  }
+  } catch (e) {}
+
   return "";
 }
 
-async function readJsonPromise(_path) {
-  const content = await readFilePromise(_path);
-  let indexJson = "";
-  try {
-    indexJson = JSON.parse(content);
-  } catch (e) {
-    console.error(`Failed to read json:[${_path}]`, e);
-  }
-  return indexJson;
-}
+/**
+ * 下载差量包
+ */
+function downloadDiff() {}
 
-function readFilePromise(_path) {
-  const fs = require("fs");
-  return new Promise((resolve, reject) => {
-    fs.readFile(_path, (err, data) => {
-      if (err) {
-        resolve("");
-      } else {
-        resolve(data);
-      }
-    });
-  });
-}
+function mergeDiff() {}
 
 module.exports = {
   getResource: process.env.NODE_ENV === "production" ? getResourceProd : getResourceDev,
