@@ -1,18 +1,29 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "启动调试主进程",
-        "type": "node",
-        "request": "launch",
-        "cwd": "${workspaceRoot}",
-        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-        "windows": {
-          "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
-        },
-        "args": ["src/index.js"],
-        "outputCapture": "std"
-      }
-    ]
-  }
-  
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "test",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "windows": {
+        "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe"
+      },
+      "args": ["src/__test__/updater/test.index.js"],
+      "outputCapture": "std"
+    },
+    {
+      "name": "启动调试主进程",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+      },
+      "args": ["src/index.js"],
+      "outputCapture": "std"
+    }
+  ]
+}

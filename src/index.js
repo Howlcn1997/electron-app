@@ -16,22 +16,16 @@ Object.assign(global, {
 // 替换console
 Object.assign(global.console, require("electron-log").functions);
 
-const updaterRoot = path.join(global._APP_PATH_, "./updater");
-const appUpdaterPath = path.join(updaterRoot, "app.updater.js");
-const mainUpdaterPath = path.join(updaterRoot, "main.updater.js");
-const rendererUpdaterPath = path.join(updaterRoot, "renderer.updater.js");
-
+const updaterPath = path.join(global._APP_PATH_, "./updater/index.js");
+const updater = require(updaterPath);
 // 启动electron-updater
-const appUpdater = require(appUpdaterPath);
-const mainUpdater = require(mainUpdaterPath);
-const rendererUpdater = require(rendererUpdaterPath);
 (async () => {
   // 应用级别检查更新
-  appUpdater.initUpdater();
-  // 主进程资源
-  global._MAIN_ROOT_PATH_ = await mainUpdater.getResource(global._APP_PATH_);
-  // 渲染进程资源
-  global._RENDERER_ROOT_URL_ = await rendererUpdater.getUrl(global._APP_PATH_);
+  const { "dist/main": mainPath, "dist/renderer": rendererPath } = await updater.init({
+    proxyRoot: global._APP_PATH_,
+  });
+  global._MAIN_ROOT_PATH_ = mainPath;
+  global._RENDERER_ROOT_URL_ = rendererPath;
   // 启动主进程
   require(global._MAIN_ROOT_PATH_);
 })();
