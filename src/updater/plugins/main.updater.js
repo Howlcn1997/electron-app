@@ -1,7 +1,7 @@
 const path = require("path");
 const fsx = require("fs-extra");
-const { gt: versionGt } = require("./common/version");
-const { generateStagingPercentage } = require("./common/gray-release");
+const { gt: versionGt } = require("../common/version");
+const { generateStagingPercentage } = require("../common/gray-release");
 // 版本判断依赖文件
 const url = "https://oss.51ifonts.com/client/download/main.latest.json";
 // 预更新缓存根目录
