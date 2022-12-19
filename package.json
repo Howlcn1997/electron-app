@@ -6,14 +6,14 @@
   "scripts": {
     "start": "concurrently \"npm run start:renderer\" \"npm run start:main\"",
     "start:renderer": "cd ./src/renderer && npm start",
-    "start:main": "electron src/main/main.js",
+    "start:main": "electron src/index.js",
     "postinstall": "ts-node .ext/scripts/check-native-dep.js && electron-builder install-app-deps",
     "build": "ts-node ./.ext/scripts/clean.js && concurrently \"npm run build:renderer\" \"npm run build:main\" \"npm run build:updater\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.ext/configs/webpack.config.main.prod.ts",
     "build:renderer": "cd ./src/renderer && npm run build",
     "build:updater": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.ext/configs/webpack.config.updater.prod.ts",
     "package": "npm run build && ts-node ./.ext/scripts/clean-dist.js && electron-builder build --publish never",
-    "test": "ts-node ./.ext/scripts/link-modules.ts && electron-builder build --publish never",
+    "test": "node ./src/__test__/updater/test.index.js",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app"
   },
   "devDependencies": {

@@ -1,12 +1,13 @@
 {
   "version": "0.2.0",
   "configurations": [
+
     {
-      "name": "test",
+      "name": "测试更新器",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}",
-      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeExecutable": "/usr/local/bin/node",
       "windows": {
         "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe"
       },

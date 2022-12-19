@@ -1,12 +1,16 @@
 class NodeModuleUpdater {
-  constructor(props) {
+  constructor (props) {
     this.env = {
       // 源文件
-      source: props.source,
+      source: props.source
     };
   }
-  getInfo() {
-    return this.env.source;
+
+  getInfo () {
+    return {
+      path: this.env.source,
+      updated: true
+    };
   }
 }
 
