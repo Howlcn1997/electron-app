@@ -10,7 +10,7 @@ class RendererUpdater {
   getInfo () {
     return {
       path: this.env.source,
-      updated: true
+      updated: false
     };
   }
 

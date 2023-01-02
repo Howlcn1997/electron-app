@@ -1,9 +1,10 @@
 const fsx = require('fs-extra');
 const path = require('path');
+const { dirBFIterator } = require('./utils/file-system');
 
 class Updater {
   constructor (props) {
-    this.pluginsConfig = props.pluginsConfig;
+    this.plugins = props.plugins;
     this.sourceDir = props.sourceDir;
     this.destDir = props.destDir;
     this.exclude = props.exclude;
@@ -21,7 +22,7 @@ class Updater {
    * @param {Object} plugins {[key]: updaterInstance}
    */
   async init () {
-    const updateInfos = await this.updaterMapToUpdaterInfo(this.pluginsConfig);
+    const updateInfos = await this.updaterMapToUpdaterInfo(this.plugins);
     const needBuild = await this.needBuilderNextISO(updateInfos);
 
     const currentISOPath = path.join(this.destDir, this.updaterISOName);
@@ -31,11 +32,11 @@ class Updater {
       await this.switchISO(this.updaterISOName, `${this.updaterISOName}.next`);
     }
 
-    const pluginsConfig = { ...this.pluginsConfig };
-    for (const key in pluginsConfig) {
-      pluginsConfig[key] = path.join(currentISOPath, key);
+    const plugins = { ...this.plugins };
+    for (const key in plugins) {
+      plugins[key] = path.join(currentISOPath, key);
     }
-    return pluginsConfig;
+    return plugins;
   }
 
   async switchISO () {
@@ -49,28 +50,13 @@ class Updater {
     }
     // 将app.next junctions树更名为app
     await fsx.rename(nextPath, currentPath);
-    return {
-      node_module: 'junctionsPath',
-      'dist/main': 'junctionsPath',
-      'dist/renderer': 'junctionsPath'
-    };
   }
 
-  cleanISO (list) {
-    return Promise.all(
-      list.map(async (relativePath) => {
-        const fullPath = path.join(this.destDir, relativePath);
-        const exists = await fsx.pathExists(fullPath);
-        if (!exists) await fsx.remove(fullPath);
-      })
-    );
-  }
-
-  async updaterMapToUpdaterInfo (pluginsConfig) {
-    const pluginsConfigKeys = Object.keys(pluginsConfig);
+  async updaterMapToUpdaterInfo (plugins) {
+    const pluginsConfigKeys = Object.keys(plugins);
     const updateInfos = await Promise.all(
       pluginsConfigKeys.map(async (relativePath) => {
-        const updaterInstance = pluginsConfig[relativePath];
+        const updaterInstance = plugins[relativePath];
         return {
           ...(await updaterInstance.getInfo()),
           relativePath
@@ -128,20 +114,6 @@ class Updater {
       await fsx.symlink(sourceFullPath, targetFullPath, 'junction');
       return false;
     });
-  }
-}
-
-async function dirBFIterator (
-  rootNodePath,
-  needIterateFn = (currentPath) => false
-) {
-  const queue = [rootNodePath];
-  while (queue.length) {
-    const currentNodePath = queue.shift();
-    const needIterate = await needIterateFn(currentNodePath);
-    if (!needIterate) continue;
-    const ls = await fsx.readdir(currentNodePath);
-    queue.push(...ls.map((i) => path.join(currentNodePath, i)));
   }
 }
 

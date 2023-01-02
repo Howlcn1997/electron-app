@@ -4,12 +4,12 @@ function create (props = {}) {
     height: 800,
     name: 'main',
     show: true,
+    loadURL: global._RENDERER_URL_,
     webPreferences: {
       enableRemoteModule: true
     },
     ...props
   });
-  main.loadURL(global._RENDERER_URL_);
   main.webContents.openDevTools();
   return main;
 }

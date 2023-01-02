@@ -1,16 +1,16 @@
-const { contextBridge, ipcRenderer } = require("electron");
 
-process.once("loaded", () => {
-  contextBridge.exposeInMainWorld("electron", {
-    getGlobalVariable: (key) => ipcRenderer.invoke("COMMON_IPC::GET_GLOBAL_VARIABLE", { key }),
+const { contextBridge, ipcRenderer } = require('electron');
+process.once('loaded', () => {
+  contextBridge.exposeInMainWorld('electron', {
+    getGlobalVariable: (key) => ipcRenderer.invoke('COMMON_IPC::GET_GLOBAL_VARIABLE', { key }),
     sendToTarget: (target, channel, message) => {
-      ipcRenderer.send("BROWSER_IPC::SEND_TO", { target, channel, message });
+      ipcRenderer.send('BROWSER_IPC::SEND_TO', { target, channel, message });
     },
     listenFrom: (target, channel, cb) => {
       ipcRenderer.on(channel, (e, message, from) => {
         target === from && cb(message);
       });
-    },
+    }
   });
 
   if (global.require) {

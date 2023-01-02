@@ -9,7 +9,7 @@ class NodeModuleUpdater {
   getInfo () {
     return {
       path: this.env.source,
-      updated: true
+      updated: false
     };
   }
 }

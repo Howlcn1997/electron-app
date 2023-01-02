@@ -1,11 +1,12 @@
-function parse(versionString) {
-  if (!versionString.includes("-")) return { clientVersion: "", version: "", versionArray: [] };
+function parse (versionString) {
+  if (!versionString.includes('-')) return { clientVersion: '', version: '', versionArray: [] };
 
-  const [clientVersion, version] = versionString.split("-");
-  return [clientVersion, version.split(".").map(Number), version];
+  const [clientVersion, version] = versionString.split('-');
+  return [clientVersion, version.split('.').map(Number), version];
 }
 
-function gt(version1, version2) {
+function gt (version1, version2) {
+  if (!version1 || !version2) return false;
   const [clientVersion1, versionArray1] = parse(version1);
   const [clientVersion2, versionArray2] = parse(version2);
   if (clientVersion1 !== clientVersion2) return 0;
@@ -26,7 +27,7 @@ function gt(version1, version2) {
  *
  * @return {String} 版本号  示例：2.5.0-2022.12.13.12.01.01
  */
-function generateVersion(clientVersion) {
+function generateVersion (clientVersion) {
   const now = new Date();
   return `${clientVersion}-${now.getFullYear()}.${
     now.getMonth() + 1
@@ -35,5 +36,5 @@ function generateVersion(clientVersion) {
 
 module.exports = {
   gt,
-  generateVersion,
+  generateVersion
 };

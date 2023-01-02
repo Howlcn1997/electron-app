@@ -10,7 +10,7 @@ Object.assign(global, {
   _USER_DATA_: app.getPath('userData'),
   _TEMP_PATH_: app.getPath('temp'),
   _MAIN_ROOT_PATH_: '', // 主进程入口文件地址
-  _RENDERER_ROOT_URL_: '', // 渲染进程入口文件地址
+  _RENDERER_URL_: '', // 渲染进程入口文件地址
   _dbPath: '' // 数据库文件地址
 });
 // 替换console
@@ -19,24 +19,21 @@ Object.assign(global.console, require('electron-log').functions);
 const { getSourceMap } = require(path.join(global._APP_PATH_, './updater/index'));
 
 (async () => {
-  const sourceDir = path.join(global._APP_PATH_);
-  const destDir = path.join(global._USER_DATA_, 'updater');
+  const sourceDir = global._IS_DEV_ ? path.join(global._APP_PATH_, '../release/app') : global._APP_PATH_;
+  const destDir = global._IS_DEV_ ? path.join(global._APP_PATH_, '../updater-dev') : path.join(global._USER_DATA_, 'updater');
 
-  if (global._IS_DEV_) {
-    global._MAIN_ROOT_PATH_ = path.join(sourceDir, 'main');
-    global._RENDERER_URL_ = 'http://localhost:8000';
-  } else {
-    const sourceMap = await getSourceMap({
-      sourceDir,
-      destDir,
-      exclude: (fullPath) => {
-        const basename = path.basename(fullPath);
-        return basename === '__test__' || basename.startsWith('.');
-      }
-    });
-    global._MAIN_ROOT_PATH_ = sourceMap['dist/main'];
-    global._RENDERER_URL_ = sourceMap['dist/renderer'];
-  }
+  const sourceMap = await getSourceMap({
+    isDev: global._IS_DEV_,
+    sourceDir,
+    destDir,
+    exclude: (fullPath) => {
+      const basename = path.basename(fullPath);
+      return basename === '__test__' || basename.startsWith('.');
+    }
+  });
+  global._MAIN_ROOT_PATH_ = global._IS_DEV_ ? path.join(__dirname, './main') : sourceMap['dist/main'];
+  // global._RENDERER_URL_ = 'file://' + path.join(sourceMap['dist/renderer'], 'index.html');
+  global._RENDERER_URL_ = global._IS_DEV_ ? 'http://localhost:8000' : 'file://' + path.join(sourceMap['dist/renderer'], 'index.html');
   // 启动主进程
   require(path.join(global._MAIN_ROOT_PATH_, 'main.js'));
 })();
