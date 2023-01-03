@@ -5,8 +5,10 @@ function create (props = {}) {
     name: 'main',
     show: true,
     loadURL: global._RENDERER_URL_,
+    pluginOptions: { addDevTools: { prodValid: true } },
     webPreferences: {
-      enableRemoteModule: true
+      enableRemoteModule: true,
+      devTools: true
     },
     ...props
   });

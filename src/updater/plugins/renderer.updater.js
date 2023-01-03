@@ -1,17 +1,9 @@
 const path = require('path');
-class RendererUpdater {
+const Updater = require('../utils/updater');
+class RendererUpdater extends Updater {
   constructor (props) {
-    this.env = {
-      // 源文件
-      source: props.source
-    };
-  }
-
-  getInfo () {
-    return {
-      path: this.env.source,
-      updated: false
-    };
+    super(props);
+    this.checkUpdate();
   }
 
   async getUrlProd (relativePath) {
@@ -26,11 +18,6 @@ class RendererUpdater {
     // const root = "http://localhost:8000";
     const root = 'file://' + path.join(this.env.source, './index.html');
     return root;
-  }
-
-  checkUpdate () {
-    // 检查是否有新的更新
-    // 修改相关index.json文件信息
   }
 }
 

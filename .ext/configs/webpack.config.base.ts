@@ -4,7 +4,6 @@
 
 import webpack from "webpack";
 import webpackPaths from "./webpack.paths";
-import CopyWebpackPlugin from "copy-webpack-plugin";
 
 const configuration: webpack.Configuration = {
   stats: "errors-only",
@@ -17,7 +16,6 @@ const configuration: webpack.Configuration = {
         use: {
           loader: "ts-loader",
           options: {
-            // Remove this line to enable type checking in webpack builds
             transpileOnly: true,
             compilerOptions: {
               module: "esnext",
@@ -30,7 +28,6 @@ const configuration: webpack.Configuration = {
 
   output: {
     path: webpackPaths.srcPath,
-    // https://github.com/webpack/webpack/issues/1114
     library: {
       type: "commonjs2",
     },
@@ -41,21 +38,13 @@ const configuration: webpack.Configuration = {
    */
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
-    // modules: [webpackPaths.srcPath, "node_modules"],
+    modules: ["node_modules"],
   },
 
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: webpackPaths.srcAppEntryPath,
-          to: webpackPaths.distAppEntryPath,
-        },
-      ],
-    }),
+    })
   ],
 };
 

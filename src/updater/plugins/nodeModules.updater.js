@@ -1,4 +1,4 @@
-class NodeModuleUpdater {
+class NodeModulesUpdater {
   constructor (props) {
     this.env = {
       // 源文件
@@ -14,4 +14,4 @@ class NodeModuleUpdater {
   }
 }
 
-module.exports = NodeModuleUpdater;
+module.exports = NodeModulesUpdater;

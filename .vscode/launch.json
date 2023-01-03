@@ -2,6 +2,7 @@
   "version": "0.2.0",
   "configurations": [
 
+
     {
       "name": "测试更新器",
       "type": "node",
@@ -24,6 +25,18 @@
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
       },
       "args": ["src/index.js"],
+      "outputCapture": "std"
+    },
+    {
+      "name": "启动release",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+      },
+      "args": ["release/app/dist/index.js"],
       "outputCapture": "std"
     }
   ]

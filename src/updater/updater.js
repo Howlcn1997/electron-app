@@ -29,12 +29,13 @@ class Updater {
     if (needBuild) {
       // 生成资源镜像树
       await this.buildISO(updateInfos, `${this.updaterISOName}.next`);
-      await this.switchISO(this.updaterISOName, `${this.updaterISOName}.next`);
+      await this.switchISO();
     }
+    const hasISO = needBuild || await fsx.pathExists(currentISOPath);
 
     const plugins = { ...this.plugins };
     for (const key in plugins) {
-      plugins[key] = path.join(currentISOPath, key);
+      plugins[key] = hasISO ? path.join(currentISOPath, key) : updateInfos.find(i => i.relativePath === key).path;
     }
     return plugins;
   }
@@ -105,7 +106,7 @@ class Updater {
 
       // 优先获取更新器中的路径
       const sourceFullPath =
-        updaterInfos.find((i) => i.path === relativePath)?.path ||
+        updaterInfos.find((i) => i.relativePath === relativePath)?.path ||
         currentFullPath;
       const targetFullPath = path.join(this.destDir, rootName, relativePath);
 

@@ -26,7 +26,6 @@ class ElectronBytenodePlugin {
         if (!/\.js$/.test(filepath)) continue;
 
         let source = Module.wrap(compilation.assets[filepath].source());
-        const filename = path.basename(filepath, ".js");
         const jscCode = await bytenode.compileElectronCode(source);
         const jscFilename = path.basename(filepath, ".js") + ".jsc";
         const jscFilepath = filepath.replace(".js", ".jsc");

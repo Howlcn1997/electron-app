@@ -1,7 +1,6 @@
 const path = require('path');
 const preloadScript = path.join(global._MAIN_ROOT_PATH_, './preload.js');
 // 公共配置
-
 const commonConfig = {
   backgroundColor: '#fff',
   resizable: true,
