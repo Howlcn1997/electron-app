@@ -910,10 +910,10 @@ builder-util@23.6.0:
     stat-mode "^1.0.0"
     temp-file "^3.4.0"
 
-bytenode@^1.3.6:
-  version "1.3.7"
-  resolved "https://registry.npmmirror.com/bytenode/-/bytenode-1.3.7.tgz"
-  integrity sha512-TKvemYL2VJQIBE095FIYudjTsLagVBLpKXIYj+MaDUgzhdNL74SM1bizcXgwQs51mnXyO38tlqusDZqY8/XdTQ==
+bytenode@1.3.6:
+  version "1.3.6"
+  resolved "https://registry.npmjs.org/bytenode/-/bytenode-1.3.6.tgz"
+  integrity sha512-t/e1psHP/r9ipj136i9FUOznv/9el1DcY7mB8nBM1FPDqYTvQY73J8uVwRPciWdKZzZrS5yxEyzNEEnB835Fyg==
 
 cacache@^16.1.0:
   version "16.1.3"
@@ -1604,7 +1604,7 @@ electron-localshortcut@^3.2.1:
 
 electron-log@^4.1.0:
   version "4.4.8"
-  resolved "https://registry.npmmirror.com/electron-log/-/electron-log-4.4.8.tgz#fcb9f714dbcaefb6ac7984c4683912c74730248a"
+  resolved "https://registry.npmmirror.com/electron-log/-/electron-log-4.4.8.tgz"
   integrity sha512-QQ4GvrXO+HkgqqEOYbi+DHL7hj5JM+nHi/j+qrN9zeeXVKy8ZABgbu4CnG+BBqDZ2+tbeq9tUC4DZfIWFU5AZA==
 
 electron-osx-sign@^0.6.0:
@@ -1876,7 +1876,7 @@ fs-extra@^10.0.0, fs-extra@^10.1.0:
 
 fs-extra@^11.1.0:
   version "11.1.0"
-  resolved "https://registry.npmmirror.com/fs-extra/-/fs-extra-11.1.0.tgz#5784b102104433bb0e090f48bfc4a30742c357ed"
+  resolved "https://registry.npmmirror.com/fs-extra/-/fs-extra-11.1.0.tgz"
   integrity sha512-0rcTq621PD5jM/e0a3EJoGC/1TC5ZBCERW82LQuwfGnCa1V8w7dpYH1yNu+SLb6E5dkeCBzKEyLGlFrnr+dUyw==
   dependencies:
     graceful-fs "^4.2.0"
@@ -2125,7 +2125,7 @@ has@^1.0.3:
 
 hasha@^5.2.2:
   version "5.2.2"
-  resolved "https://registry.npmjs.org/hasha/-/hasha-5.2.2.tgz#a48477989b3b327aea3c04f53096d816d97522a1"
+  resolved "https://registry.npmjs.org/hasha/-/hasha-5.2.2.tgz"
   integrity sha512-Hrp5vIK/xr5SkeN2onO32H0MgNZ0f17HRNH39WfL0SYUNOTZ5Lz1TJ8Pajo/87dYGEFlLMm7mIc/k/s6Bvz9HQ==
   dependencies:
     is-stream "^2.0.0"
@@ -2380,7 +2380,7 @@ is-plain-object@^2.0.4:
 
 is-stream@^2.0.0:
   version "2.0.1"
-  resolved "https://registry.npmjs.org/is-stream/-/is-stream-2.0.1.tgz#fac1e3d53b97ad5a9d0ae9cef2389f5810a5c077"
+  resolved "https://registry.npmjs.org/is-stream/-/is-stream-2.0.1.tgz"
   integrity sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==
 
 is-unicode-supported@^0.1.0:
@@ -2878,7 +2878,7 @@ node-api-version@^0.1.4:
 
 node-downloader-helper@^2.1.6:
   version "2.1.6"
-  resolved "https://registry.npmmirror.com/node-downloader-helper/-/node-downloader-helper-2.1.6.tgz#f73ac458e3ac8c21afd0b952a994eab99c64b879"
+  resolved "https://registry.npmmirror.com/node-downloader-helper/-/node-downloader-helper-2.1.6.tgz"
   integrity sha512-VkOvAXIopI3xMuM/MC5UL7NqqnizQ/9QXZt28jR8FPZ6fHLQm4xe4+YXJ9FqsWwLho5BLXrF51nfOQ0QcohRkQ==
 
 node-gyp-build@^4.2.1:
@@ -3992,7 +3992,7 @@ type-fest@^0.13.1:
 
 type-fest@^0.8.0:
   version "0.8.1"
-  resolved "https://registry.npmjs.org/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
+  resolved "https://registry.npmjs.org/type-fest/-/type-fest-0.8.1.tgz"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
 
 typescript@^4.7.4:

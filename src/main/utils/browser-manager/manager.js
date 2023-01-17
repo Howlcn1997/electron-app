@@ -93,14 +93,6 @@ class WinsManager {
       show: false
     });
 
-    console.log('===config===', {
-      ...this.browserConfig,
-      ...config,
-      webPreferences: {
-        ...(this.browserConfig.webPreferences || {}),
-        ...(config.webPreferences || {})
-      }
-    });
     config.loadURL && _newWin.loadURL(config.loadURL);
     config.loadFile && _newWin.loadFile(config.loadFile);
 

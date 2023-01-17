@@ -1,6 +1,6 @@
 const nodeRequire = eval('require');
 const path = nodeRequire('path');
-const { app } = nodeRequire('electron');
+const { app, BrowserWindow } = nodeRequire('electron');
 // 设置全局变量
 Object.assign(global, {
   _IS_DEV_: nodeRequire('electron-is-dev'),
@@ -16,6 +16,7 @@ Object.assign(global, {
 // 替换console
 Object.assign(global.console, nodeRequire('electron-log').functions);
 const { getSourceMap } = require('./updater/index.js');
+const wins = {};
 
 (async () => {
   const sourceDir = global._IS_DEV_
