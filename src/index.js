@@ -1,9 +1,8 @@
-const nodeRequire = eval('require');
-const path = nodeRequire('path');
-const { app, BrowserWindow } = nodeRequire('electron');
+const path = require('path');
+const { app } = require('electron');
 // 设置全局变量
 Object.assign(global, {
-  _IS_DEV_: nodeRequire('electron-is-dev'),
+  _IS_DEV_: require('electron-is-dev'),
   _IS_WIN_: process.platform === 'win32',
   _IS_MAC_: process.platform === 'darwin',
   _APP_PATH_: app.getAppPath(),
@@ -13,10 +12,13 @@ Object.assign(global, {
   _RENDERER_URL_: '', // 渲染进程入口文件地址
   _dbPath: '' // 数据库文件地址
 });
+Object.assign(global, {
+  _RESOURCES_: path.join(global._APP_PATH_, '../resources')
+});
+
 // 替换console
-Object.assign(global.console, nodeRequire('electron-log').functions);
+Object.assign(global.console, require('electron-log').functions);
 const { getSourceMap } = require('./updater/index.js');
-const wins = {};
 
 (async () => {
   const sourceDir = global._IS_DEV_
@@ -44,5 +46,6 @@ const wins = {};
     ? 'http://localhost:8000'
     : 'file://' + path.join(sourceMap['dist/renderer'], 'index.html');
   // 启动主进程
+  const nodeRequire = eval('require');
   nodeRequire(path.join(global._MAIN_ROOT_PATH_, 'main.js'));
 })();

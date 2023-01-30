@@ -10,19 +10,19 @@ const configuration: webpack.Configuration = {
 
   module: {
     rules: [
-      {
-        test: /\.[jt]sx?$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "ts-loader",
-          options: {
-            transpileOnly: true,
-            compilerOptions: {
-              module: "esnext",
-            },
-          },
-        },
-      },
+      // {
+      //   test: /\.[jt]sx?$/,
+      //   exclude: /node_modules/,
+      //   use: {
+      //     loader: "ts-loader",
+      //     options: {
+      //       transpileOnly: true,
+      //       compilerOptions: {
+      //         module: "esnext",
+      //       },
+      //     },
+      //   },
+      // },
     ],
   },
 
@@ -32,10 +32,6 @@ const configuration: webpack.Configuration = {
       type: "commonjs2",
     },
   },
-
-  /**
-   * Determine the array of extensions that should be used to resolve modules.
-   */
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
     modules: ["node_modules"],
@@ -44,7 +40,8 @@ const configuration: webpack.Configuration = {
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",
-    })
+      NODE_PLATFORM: process.platform,
+    }),
   ],
 };
 

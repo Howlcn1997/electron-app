@@ -15,12 +15,12 @@ async function getSourceMap ({ sourceDir, destDir, exclude, isDev = false, ...re
         dest: path.join(destDir, './cache/node_modules')
       }),
       'dist/main': new MainUpdater({
-        url: 'http://127.0.0.1:5500/app/dist/main/',
+        url: 'http://127.0.0.1:5500/0.0.1/app/dist/main/',
         source: path.join(sourceDir, 'dist/main'),
         dest: path.join(destDir, './cache/main')
       }),
       'dist/renderer': new RendererUpdater({
-        url: 'http://127.0.0.1:5500/app/dist/renderer/',
+        url: 'http://127.0.0.1:5500/0.0.1/app/dist/renderer/',
         source: path.join(sourceDir, 'dist/renderer'),
         dest: path.join(destDir, './cache/renderer')
       })

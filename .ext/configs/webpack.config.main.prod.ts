@@ -7,21 +7,18 @@ import webpack from "webpack";
 import { merge } from "webpack-merge";
 import TerserPlugin from "terser-webpack-plugin";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
-import CopyWebpackPlugin from "copy-webpack-plugin";
 import baseConfig from "./webpack.config.base";
 import webpackPaths from "./webpack.paths";
 import checkNodeEnv from "../scripts/check-node-env";
 import deleteSourceMaps from "../scripts/delete-source-maps";
-import ElectronBytenodePlugin from "../plugins/electron-bytenode-plugin";
+// import ElectronBytenodePlugin from "../plugins/electron-bytenode-plugin";
 
 checkNodeEnv("production");
 deleteSourceMaps();
 
 const configuration: webpack.Configuration = {
   // devtool: "source-map",
-
   mode: "production",
-
   target: "electron-main",
 
   entry: {
@@ -52,33 +49,16 @@ const configuration: webpack.Configuration = {
     new BundleAnalyzerPlugin({
       analyzerMode: process.env.ANALYZE === "true" ? "server" : "disabled",
     }),
-
-    /**
-     * Create global constants which can be configured at compile time.
-     *
-     * Useful for allowing different behaviour between development builds and
-     * release builds
-     *
-     * NODE_ENV should be production so that modules do not perform certain
-     * development checks
-     */
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",
       DEBUG_PROD: false,
       START_MINIMIZED: false,
     }),
-
     new webpack.DefinePlugin({
       "process.type": '"main"',
     }),
-    // new ElectronBytenodePlugin(),
+    // new ElectronBytenodePlugin(), 
   ],
-
-  /**
-   * Disables webpack processing of __dirname and __filename.
-   * If you run the bundle in node.js it falls back to these values of node.js.
-   * https://github.com/webpack/webpack/issues/2010
-   */
   node: {
     __dirname: false,
     __filename: false,

@@ -12,32 +12,34 @@ class ElectronBytenodePlugin {
     this.options = Object.assign(
       {
         exclude: (filename) => false,
-        // 删除源文件，生成jsc入口文件
-        generateEntry: true,
       },
       options
     );
   }
 
   apply(compiler) {
-    compiler.hooks.emit.tapPromise("BytenodeWebpackPlugin", async (compilation) => {
-      for (const filepath in compilation.assets) {
-        if (this.options.exclude(filepath)) continue;
-        if (!/\.js$/.test(filepath)) continue;
+    compiler.hooks.emit.tapPromise(
+      "BytenodeWebpackPlugin",
+      async (compilation) => {
+        for (const filepath in compilation.assets) {
+          if (this.options.exclude(filepath)) continue;
+          if (!/\.js$/.test(filepath)) continue;
 
-        let source = Module.wrap(compilation.assets[filepath].source());
-        const jscCode = await bytenode.compileElectronCode(source);
-        const jscFilename = path.basename(filepath, ".js") + ".jsc";
-        const jscFilepath = filepath.replace(".js", ".jsc");
+          let source = Module.wrap(compilation.assets[filepath].source());
+          console.log("=====> ", filepath);
+          const jscCode = await bytenode.compileElectronCode(source);
+          const jscFilename = path.basename(filepath, ".js") + ".jsc";
+          const jscFilepath = filepath.replace(".js", ".jsc");
 
-        compilation.assets[jscFilepath] = {
-          source: () => jscCode,
-          size: () => jscCode.length,
-        };
-        source = `require('bytenode');\nrequire('./${jscFilename}');`;
-        compilation.assets[filepath] = new RawSource(source);
+          compilation.assets[jscFilepath] = {
+            source: () => jscCode,
+            size: () => jscCode.length,
+          };
+          source = `require('bytenode');\nrequire('./${jscFilename}');`;
+          compilation.assets[filepath] = new RawSource(source);
+        }
       }
-    });
+    );
   }
 }
 

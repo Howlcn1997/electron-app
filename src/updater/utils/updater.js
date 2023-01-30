@@ -1,6 +1,5 @@
 const path = require('path');
 const fsx = require('fs-extra');
-const https = require('https');
 const hasha = require('hasha');
 const { gt: versionGt } = require('./version');
 const { generateStagingPercentage } = require('./gray-release');
@@ -43,7 +42,9 @@ class Updater {
     const updated = indexJson.updated;
     if (updated) {
       await fsx.rename(this.env.current, this.env.current + '.old');
-      try { await fsx.rename(this.env.next, this.env.current); } catch (e) {
+      try {
+        await fsx.rename(this.env.next, this.env.current);
+      } catch (e) {
         await fsx.rename(this.env.current + '.old', this.env.current);
       }
       await fsx.remove(this.env.current + '.old');
@@ -66,6 +67,7 @@ class Updater {
     if (this.initSuccess) return true;
     const currentVersion = await this.getCurrentVersion();
     const indexJsonExist = await fsx.pathExists(this.env.index);
+    console.info('indexJsonExist', indexJsonExist);
     if (!indexJsonExist) {
       await fsx.ensureDir(path.dirname(this.env.index));
       await fsx.writeJSON(this.env.index, {
@@ -78,12 +80,15 @@ class Updater {
     // 有无[version]资源【无则创建快捷方式】
     const currentVersionPath = path.join(this.env.dest, 'current');
     const currentVersionExist = await fsx.pathExists(currentVersionPath);
+    console.info('currentVersionExist', currentVersionExist);
     if (!currentVersionExist) {
+      await fsx.ensureDir(path.dirname(currentVersionPath));
       await fsx.symlink(this.env.source, currentVersionPath, 'junction');
     }
 
     // 有无结构标识文件stc.json
     const stcJsonExist = await fsx.pathExists(this.env.stc);
+    console.info('stcJsonExist', stcJsonExist);
     if (!stcJsonExist) {
       const stcJson = await this.getCurrentStc();
       await fsx.writeJSON(this.env.stc, stcJson);
@@ -106,44 +111,51 @@ class Updater {
   }
 
   async checkUpdate () {
-    // 获取版本依赖文件
-    const nextInfoJson = await this.getNextReleaseInfo();
-    const needUpdate = await this.needUpdateCheck(nextInfoJson);
-    if (!needUpdate) return false;
-    const initSuccess = await this.init();
-    if (!initSuccess) return false;
-    // diff
-    const currentStc = await this.getCurrentStc();
-    const nextStc = await this.getNextStc();
-    const downloadList = await this.diff(currentStc, nextStc);
-    if (!downloadList.length) return false;
-    // download
-    // TODO 防止大量占用带宽导致客户端用户体验下降
-    await Promise.all(
-      downloadList.map(async (i) => {
-        const target = path.join(this.env.diff, i.relativePath);
-        const dir = path.dirname(target);
-        const basename = path.basename(target);
-        await fsx.ensureDir(dir);
-        await download({
-          url: nextInfoJson.url + i.relativePath,
-          dir,
-          fileName: basename
-        });
-      })
-    );
-    // merge
-    await dirMerge(this.env.current, this.env.diff, this.env.next);
-    await fsx.remove(this.env.diff);
-    // update index.json
-    const indexJson = await fsx.readJson(this.env.index);
-    await fsx.writeJson(this.env.index, {
-      ...indexJson,
-      version: nextInfoJson.version,
-      oldVersion: indexJson.version,
-      next: this.env.next,
-      updated: true
-    });
+    try {
+      // 获取版本依赖文件
+      const nextInfoJson = await this.getNextReleaseInfo();
+      const needUpdate = await this.needUpdateCheck(nextInfoJson);
+      console.info('needUpdate', needUpdate);
+      if (!needUpdate) return false;
+      const initSuccess = await this.init();
+      console.info('initSuccess', initSuccess);
+      if (!initSuccess) return false;
+      // diff
+      const currentStc = await this.getCurrentStc();
+      const nextStc = await this.getNextStc();
+      const downloadList = await this.diff(currentStc, nextStc);
+      console.info('downloadList', downloadList);
+      if (!downloadList.length) return false;
+      // download
+      // TODO 防止大量占用带宽导致客户端用户体验下降
+      await Promise.all(
+        downloadList.map(async (i) => {
+          const target = path.join(this.env.diff, i.relativePath);
+          const dir = path.dirname(target);
+          const basename = path.basename(target);
+          await fsx.ensureDir(dir);
+          await download({
+            url: nextInfoJson.url + i.relativePath,
+            dir,
+            fileName: basename
+          });
+        })
+      );
+      // merge
+      await dirMerge(this.env.current, this.env.diff, this.env.next);
+      await fsx.remove(this.env.diff);
+      // update index.json
+      const indexJson = await fsx.readJson(this.env.index);
+      await fsx.writeJson(this.env.index, {
+        ...indexJson,
+        version: nextInfoJson.version,
+        oldVersion: indexJson.version,
+        next: this.env.next,
+        updated: true
+      });
+    } catch (e) {
+      console.error('Failed to check for updater:', e);
+    }
   }
 
   async needUpdateCheck ({ version, stagingPercentage = 100 }) {
@@ -204,7 +216,13 @@ class Updater {
           });
 
           response.on('end', () => {
-            resolve(JSON.parse(todo));
+            try {
+              resolve(JSON.parse(todo));
+            } catch (e) {
+              reject(
+                new Error(`${this.url + 'release.json'} is not valid JSON`)
+              );
+            }
           });
         })
         .on('error', reject);
@@ -223,7 +241,11 @@ class Updater {
           });
 
           response.on('end', () => {
-            resolve(JSON.parse(todo));
+            try {
+              resolve(JSON.parse(todo));
+            } catch (e) {
+              reject(new Error(`${this.url + 'stc.json'} is not valid JSON`));
+            }
           });
         })
         .on('error', reject);
@@ -256,4 +278,5 @@ class Updater {
     });
   }
 }
+
 module.exports = Updater;
