@@ -3,7 +3,8 @@ const path = require('path');
 
 async function dirBFIterator (
   rootNodePath,
-  needIterateFn = (currentPath, currentDepth) => true
+  needIterateFn = (currentPath, currentDepth) => true,
+  depth = Infinity
 ) {
   const iterateFnList = [];
   const queue = [{ path: rootNodePath, depth: 0 }];
@@ -22,7 +23,7 @@ async function dirBFIterator (
         ? ''
         : currentNode.path.replace(rootNodePath + path.sep, '');
     const children =
-      needIterate && isDirectory ? await fsx.readdir(currentNode.path) : [];
+      needIterate && isDirectory && currentNode.depth < depth ? await fsx.readdir(currentNode.path) : [];
 
     iterateFnList.push({
       path: currentNode.path,
@@ -50,13 +51,14 @@ async function dirBFIterator (
  * @param {String} sourceB path
  * @param {String} target path
  */
-async function dirMerge (sourceA, sourceB, target) {
+async function dirMerge (sourceA, sourceB, target, depth) {
   let [listA, listB] = await Promise.all(
     [sourceA, sourceB].map(
       async (rootPath, index) =>
         await dirBFIterator(
           rootPath,
-          async (fullPath) => await (await fsx.stat(fullPath)).isDirectory()
+          async (fullPath) => await (await fsx.stat(fullPath)).isDirectory(),
+          depth
         )
     )
   );
@@ -68,6 +70,7 @@ async function dirMerge (sourceA, sourceB, target) {
   const listBObj = {};
   listB.forEach((pathInfo) => (listBObj[pathInfo.relativePath] = pathInfo));
   const mergeObj = { ...listBObj, ...listAObj };
+  console.log(listA);
 
   await fsx.ensureDir(target);
   await Promise.all(

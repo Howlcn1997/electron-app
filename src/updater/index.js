@@ -11,6 +11,7 @@ async function getSourceMap ({ sourceDir, destDir, exclude, isDev = false, ...re
     exclude,
     plugins: {
       node_modules: new NodeModulesUpdater({
+        url: 'http://127.0.0.1:5500/0.0.1/node_modules',
         source: path.join(sourceDir, 'node_modules'),
         dest: path.join(destDir, './cache/node_modules')
       }),

@@ -1,0 +1,1 @@
+/Users/ning/Public/workSpace/personalCode/electron-app/release/app/dist/index.js

@@ -17,19 +17,20 @@ async function getSourceMap ({
     exclude,
     plugins: {
       node_modules: new NodeModulesUpdater({
+        url: 'http://127.0.0.1:5500/0.0.1/node_modules/',
         source: path.join(sourceDir, 'node_modules'),
         dest: path.join(destDir, './cache/node_modules')
-      }),
-      'dist/main': new MainUpdater({
-        url: 'http://127.0.0.1:5500/0.0.2/app/dist/main/',
-        source: path.join(sourceDir, 'dist/main'),
-        dest: path.join(destDir, './cache/main')
-      }),
-      'dist/renderer': new RendererUpdater({
-        url: 'http://127.0.0.1:5500/0.0.2/app/dist/renderer/',
-        source: path.join(sourceDir, 'dist/renderer'),
-        dest: path.join(destDir, './cache/renderer')
       })
+      // 'dist/main': new MainUpdater({
+      //   url: 'http://127.0.0.1:5500/0.0.2/app/dist/main/',
+      //   source: path.join(sourceDir, 'dist/main'),
+      //   dest: path.join(destDir, './cache/main')
+      // }),
+      // 'dist/renderer': new RendererUpdater({
+      //   url: 'http://127.0.0.1:5500/0.0.2/app/dist/renderer/',
+      //   source: path.join(sourceDir, 'dist/renderer'),
+      //   dest: path.join(destDir, './cache/renderer')
+      // })
     }
   });
   return await updaterInstance.init();

@@ -67,7 +67,6 @@ class Updater {
     if (this.initSuccess) return true;
     const currentVersion = await this.getCurrentVersion();
     const indexJsonExist = await fsx.pathExists(this.env.index);
-    console.info('indexJsonExist', indexJsonExist);
     if (!indexJsonExist) {
       await fsx.ensureDir(path.dirname(this.env.index));
       await fsx.writeJSON(this.env.index, {
@@ -80,7 +79,6 @@ class Updater {
     // 有无[version]资源【无则创建快捷方式】
     const currentVersionPath = path.join(this.env.dest, 'current');
     const currentVersionExist = await fsx.pathExists(currentVersionPath);
-    console.info('currentVersionExist', currentVersionExist);
     if (!currentVersionExist) {
       await fsx.ensureDir(path.dirname(currentVersionPath));
       await fsx.symlink(this.env.source, currentVersionPath, 'junction');
@@ -88,7 +86,6 @@ class Updater {
 
     // 有无结构标识文件stc.json
     const stcJsonExist = await fsx.pathExists(this.env.stc);
-    console.info('stcJsonExist', stcJsonExist);
     if (!stcJsonExist) {
       const stcJson = await this.getCurrentStc();
       await fsx.writeJSON(this.env.stc, stcJson);
@@ -97,34 +94,18 @@ class Updater {
     return (this.initSuccess = true);
   }
 
-  async getResourceProd (rootPath, relativePath) {
-    // 获取%appPath%/[appName]/updater/main/index.json
-    //       是否获取成功 ---是---> 返回index.json中记录的路径信息
-    //                  ---否---> 返回默认入口文件
-    const root = path.join(rootPath, './main/main.js');
-    return root;
-  }
-
-  async getResourceDev (rootPath, relativePath) {
-    const root = path.join(rootPath, './main/main.js');
-    return root;
-  }
-
   async checkUpdate () {
     try {
       // 获取版本依赖文件
       const nextInfoJson = await this.getNextReleaseInfo();
       const needUpdate = await this.needUpdateCheck(nextInfoJson);
-      console.info('needUpdate', needUpdate);
       if (!needUpdate) return false;
       const initSuccess = await this.init();
-      console.info('initSuccess', initSuccess);
       if (!initSuccess) return false;
       // diff
       const currentStc = await this.getCurrentStc();
       const nextStc = await this.getNextStc();
       const downloadList = await this.diff(currentStc, nextStc);
-      console.info('downloadList', downloadList);
       if (!downloadList.length) return false;
       // download
       // TODO 防止大量占用带宽导致客户端用户体验下降

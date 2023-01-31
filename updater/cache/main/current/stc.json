@@ -1,0 +1,40 @@
+{
+  "list": [
+    {
+      "path": "/Users/ning/Desktop/version/0.0.1/app/dist/main/main.js",
+      "depth": 1,
+      "relativePath": "main.js",
+      "rootPath": "/Users/ning/Desktop/version/0.0.1/app/dist/main",
+      "isDirectory": false,
+      "children": [],
+      "hash": "89f83e704178c9a229e36f7d580881cd"
+    },
+    {
+      "path": "/Users/ning/Desktop/version/0.0.1/app/dist/main/main.js.LICENSE.txt",
+      "depth": 1,
+      "relativePath": "main.js.LICENSE.txt",
+      "rootPath": "/Users/ning/Desktop/version/0.0.1/app/dist/main",
+      "isDirectory": false,
+      "children": [],
+      "hash": "275fe79abee3b697f1673c8bd9c58856"
+    },
+    {
+      "path": "/Users/ning/Desktop/version/0.0.1/app/dist/main/preload.js",
+      "depth": 1,
+      "relativePath": "preload.js",
+      "rootPath": "/Users/ning/Desktop/version/0.0.1/app/dist/main",
+      "isDirectory": false,
+      "children": [],
+      "hash": "de7d331953e98487481e3389b11d59e2"
+    },
+    {
+      "path": "/Users/ning/Desktop/version/0.0.1/app/dist/main/stc.json",
+      "depth": 1,
+      "relativePath": "stc.json",
+      "rootPath": "/Users/ning/Desktop/version/0.0.1/app/dist/main",
+      "isDirectory": false,
+      "children": [],
+      "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  ]
+}

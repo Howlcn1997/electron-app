@@ -3,6 +3,7 @@
  */
 
 import webpack from "webpack";
+import nodeExternals from "webpack-node-externals";
 import webpackPaths from "./webpack.paths";
 
 const configuration: webpack.Configuration = {
@@ -36,7 +37,7 @@ const configuration: webpack.Configuration = {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
     modules: ["node_modules"],
   },
-
+  externals: [nodeExternals()],
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",
