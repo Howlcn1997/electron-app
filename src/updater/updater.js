@@ -1,15 +1,15 @@
-const fsx = require('fs-extra');
-const path = require('path');
-const { dirBFIterator } = require('./utils/file-system');
+const fsx = require("fs-extra");
+const path = require("path");
+const { dirBFIterator } = require("./utils/file-system");
 
 class Updater {
-  constructor (props) {
+  constructor(props) {
     this.plugins = props.plugins;
     this.sourceDir = props.sourceDir;
     this.destDir = props.destDir;
     this.exclude = props.exclude;
 
-    this.updaterCacheDir = path.join(props.destDir, 'cache');
+    this.updaterCacheDir = path.join(props.destDir, "cache");
     this.updaterISOName = path.basename(props.sourceDir);
   }
 
@@ -21,7 +21,7 @@ class Updater {
    *
    * @param {Object} plugins {[key]: updaterInstance}
    */
-  async init () {
+  async init() {
     const updateInfos = await this.updaterMapToUpdaterInfo(this.plugins);
     const needBuild = await this.needBuilderNextISO(updateInfos);
 
@@ -31,36 +31,41 @@ class Updater {
       await this.buildISO(updateInfos, `${this.updaterISOName}.next`);
       await this.switchISO();
     }
-    const hasISO = needBuild || await fsx.pathExists(currentISOPath);
+    const hasISO = needBuild || (await fsx.pathExists(currentISOPath));
 
     const plugins = { ...this.plugins };
     for (const key in plugins) {
-      plugins[key] = hasISO ? path.join(currentISOPath, key) : updateInfos.find(i => i.relativePath === key).path;
+      plugins[key] = hasISO ? path.join(currentISOPath, key) : updateInfos.find((i) => i.relativePath === key).path;
     }
     return plugins;
   }
 
-  async switchISO () {
-    const oldPath = path.join(this.destDir, `${this.updaterISOName}.old`);
-    const currentPath = path.join(this.destDir, this.updaterISOName);
-    const nextPath = path.join(this.destDir, `${this.updaterISOName}.next`);
-    await fsx.remove(oldPath);
-    // 将app junctions树更名为app.old
-    if (await fsx.pathExists(currentPath)) {
-      await fsx.rename(currentPath, oldPath);
+  async switchISO() {
+    try {
+      const oldPath = path.join(this.destDir, `${this.updaterISOName}.old`);
+      const currentPath = path.join(this.destDir, this.updaterISOName);
+      const nextPath = path.join(this.destDir, `${this.updaterISOName}.next`);
+      await fsx.remove(oldPath);
+      // 将app junctions树更名为app.old
+      if (await fsx.pathExists(currentPath)) {
+        await fsx.rename(currentPath, oldPath);
+      }
+      // 将app.next junctions树更名为app
+      await fsx.rename(nextPath, currentPath);
+    } catch (e) {
+      console.error("Failed to switch ISO:", e);
+      throw e;
     }
-    // 将app.next junctions树更名为app
-    await fsx.rename(nextPath, currentPath);
   }
 
-  async updaterMapToUpdaterInfo (plugins) {
+  async updaterMapToUpdaterInfo(plugins) {
     const pluginsConfigKeys = Object.keys(plugins);
     const updateInfos = await Promise.all(
       pluginsConfigKeys.map(async (relativePath) => {
         const updaterInstance = plugins[relativePath];
         return {
           ...(await updaterInstance.getInfo()),
-          relativePath
+          relativePath,
         };
       })
     );
@@ -74,7 +79,7 @@ class Updater {
    *
    * @return {Boolean}
    */
-  async needBuilderNextISO (updaterInfos) {
+  async needBuilderNextISO(updaterInfos) {
     return updaterInfos.some((info) => info.updated);
   }
 
@@ -83,38 +88,45 @@ class Updater {
    * @param {*} updaterInfos
    * @param {*} rootName
    */
-  async buildISO (updaterInfos, rootName) {
-    const relativePaths = updaterInfos.map((i) => i.relativePath);
+  async buildISO(updaterInfos, rootName) {
+    try {
+      const relativePaths = updaterInfos.map((i) => i.relativePath);
 
-    // 从根目录开始构建
-    const buildGuide = pathsToTree(relativePaths);
-    await dirBFIterator(this.sourceDir, async (currentFullPath) => {
-      if (currentFullPath === this.sourceDir) return true;
-      if (this.exclude && this.exclude(currentFullPath)) return false;
+      // 从根目录开始构建
+      const buildGuide = pathsToTree(relativePaths);
+      await dirBFIterator(this.sourceDir, async (currentFullPath) => {
+        if (currentFullPath === this.sourceDir) return true;
+        if (this.exclude && this.exclude(currentFullPath)) return false;
 
-      const relativePath = currentFullPath.replace(
-        this.sourceDir + path.sep,
-        ''
-      );
-      const currentBasename = path.basename(currentFullPath);
-      const currentDepth = relativePath.split(path.sep).length - 1;
+        const relativePath = currentFullPath.replace(this.sourceDir + path.sep, "");
+        const currentBasename = path.basename(currentFullPath);
+        const currentDepth = relativePath.split(path.sep).length - 1;
 
-      const needIterate = buildGuide[currentDepth].some(
-        (i) => i.name === currentBasename && i.children > 0
-      );
-      if (needIterate) return true;
+        const needIterate = buildGuide[currentDepth].some((i) => i.name === currentBasename && i.children > 0);
+        if (needIterate) return true;
 
-      // 优先获取更新器中的路径
-      const sourceFullPath =
-        updaterInfos.find((i) => i.relativePath === relativePath)?.path ||
-        currentFullPath;
-      const targetFullPath = path.join(this.destDir, rootName, relativePath);
+        // 优先获取更新器中的路径
+        const sourceFullPath = updaterInfos.find((i) => i.relativePath === relativePath)?.path || currentFullPath;
+        const targetFullPath = path.join(this.destDir, rootName, relativePath);
 
-      await fsx.remove(targetFullPath);
-      await fsx.ensureDir(path.dirname(targetFullPath));
-      await fsx.symlink(sourceFullPath, targetFullPath, 'junction');
-      return false;
-    });
+        await fsx.remove(targetFullPath);
+        await fsx.ensureDir(path.dirname(targetFullPath));
+        const stat = await fsx.stat(sourceFullPath);
+        const isDirectory = stat.isDirectory();
+        // windows上需要使用junction来绕开管理员权限
+        // windows上使用junction无法软连接文件
+        // 不愧是你 windows！！
+        if (isDirectory) {
+          await fsx.symlink(sourceFullPath, targetFullPath, "junction");
+        } else {
+          await fsx.copy(sourceFullPath, targetFullPath);
+        }
+        return false;
+      });
+    } catch (e) {
+      console.error("Failed to build ISO:", e);
+      throw e;
+    }
   }
 }
 
@@ -130,10 +142,10 @@ class Updater {
  *
  * @ps 前提条件 paths中的路径不存在包含关系  例如["dist/main","dist/main/index"]
  */
-function pathsToTree (paths) {
+function pathsToTree(paths) {
   const resArr = [];
   const resObj = {};
-  const pathsSplitArr = paths.map((pth) => pth.split('/'));
+  const pathsSplitArr = paths.map((pth) => pth.split("/"));
   // 先生成 {node_modules: null, dist: {main: null, renderer: null}}
   pathsSplitArr.forEach((arr) => {
     let parentNode = resObj;

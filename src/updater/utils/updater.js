@@ -1,69 +1,69 @@
-const path = require('path');
-const fsx = require('fs-extra');
-const hasha = require('hasha');
-const { gt: versionGt } = require('./version');
-const { generateStagingPercentage } = require('./gray-release');
-const { download } = require('./download');
-const { dirMerge, dirBFIterator } = require('./file-system');
-const version = require('../config/version.js');
+const path = require("path");
+const fsx = require("fs-extra");
+const hasha = require("hasha");
+const { gt: versionGt } = require("./version");
+const { generateStagingPercentage } = require("./gray-release");
+const { download } = require("./download");
+const { dirMerge, dirBFIterator } = require("./file-system");
+const version = require("../config/version.js");
 
 class Updater {
-  constructor (props) {
+  constructor(props) {
     this.url = props.url;
     this.env = {
       // 源文件
       source: props.source,
       dest: props.dest,
-      current: path.join(props.dest, 'current'),
-      diff: path.join(props.dest, 'diff'),
-      next: path.join(props.dest, 'next'),
+      current: path.join(props.dest, "current"),
+      diff: path.join(props.dest, "diff"),
+      next: path.join(props.dest, "next"),
       // 本地文件引导文件
-      index: path.join(props.dest, 'index.json'),
+      index: path.join(props.dest, "index.json"),
       // 当前文件结构
-      stc: path.join(props.dest, 'stc.json')
+      stc: path.join(props.dest, "stc.json"),
     };
     this.nextVersion = props.nextVersion;
     this.initSuccess = false;
   }
 
-  async getInfo () {
+  async getInfo() {
     // 获取cache中index.json记录的信息
-    let indexJson = '';
+    let indexJson = "";
     try {
       indexJson = await fsx.readJSON(this.env.index);
     } catch (e) {
       indexJson = {
         current: this.env.source,
-        next: '',
-        version: '',
-        updated: false
+        next: "",
+        version: "",
+        updated: false,
       };
     }
     const updated = indexJson.updated;
     if (updated) {
-      await fsx.rename(this.env.current, this.env.current + '.old');
+      await fsx.rename(this.env.current, this.env.current + ".old");
       try {
         await fsx.rename(this.env.next, this.env.current);
       } catch (e) {
-        await fsx.rename(this.env.current + '.old', this.env.current);
+        await fsx.rename(this.env.current + ".old", this.env.current);
       }
-      await fsx.remove(this.env.current + '.old');
+      await fsx.remove(this.env.current + ".old");
       const stcJson = await this.getCurrentStc(true);
       await fsx.writeJSON(this.env.stc, stcJson);
       await fsx.writeJSON(this.env.index, {
         ...indexJson,
-        next: '',
+        next: "",
         current: this.env.current,
-        updated: false
+        updated: false,
       });
     }
     return {
       path: indexJson.current,
-      updated
+      updated,
     };
   }
 
-  async init ({ depth = Infinity } = {}) {
+  async init({ depth = Infinity } = {}) {
     if (this.initSuccess) return true;
     const currentVersion = await this.getCurrentVersion();
     const indexJsonExist = await fsx.pathExists(this.env.index);
@@ -71,17 +71,16 @@ class Updater {
       await fsx.ensureDir(path.dirname(this.env.index));
       await fsx.writeJSON(this.env.index, {
         current: this.env.current,
-        next: '',
+        next: "",
         version: currentVersion,
-        main: 'main.js'
       });
     }
     // 有无[version]资源【无则创建快捷方式】
-    const currentVersionPath = path.join(this.env.dest, 'current');
+    const currentVersionPath = path.join(this.env.dest, "current");
     const currentVersionExist = await fsx.pathExists(currentVersionPath);
     if (!currentVersionExist) {
       await fsx.ensureDir(path.dirname(currentVersionPath));
-      await fsx.symlink(this.env.source, currentVersionPath, 'junction');
+      await fsx.symlink(this.env.source, currentVersionPath, "junction");
     }
 
     // 有无结构标识文件stc.json
@@ -94,7 +93,7 @@ class Updater {
     return (this.initSuccess = true);
   }
 
-  async checkUpdate () {
+  async checkUpdate() {
     try {
       // 获取版本依赖文件
       const nextInfoJson = await this.getNextReleaseInfo();
@@ -118,13 +117,15 @@ class Updater {
           await download({
             url: nextInfoJson.url + i.relativePath,
             dir,
-            fileName: basename
+            fileName: basename,
           });
         })
       );
       // merge
       await dirMerge(this.env.current, this.env.diff, this.env.next);
       await fsx.remove(this.env.diff);
+      // update stc.json
+      await fsx.writeJson(this.env.stc, nextStc);
       // update index.json
       const indexJson = await fsx.readJson(this.env.index);
       await fsx.writeJson(this.env.index, {
@@ -132,14 +133,14 @@ class Updater {
         version: nextInfoJson.version,
         oldVersion: indexJson.version,
         next: this.env.next,
-        updated: true
+        updated: true,
       });
     } catch (e) {
-      console.error('Failed to check for updater:', e);
+      console.error("Failed to check for updater:", e);
     }
   }
 
-  async needUpdateCheck ({ version, stagingPercentage = 100 }) {
+  async needUpdateCheck({ version, stagingPercentage = 100 }) {
     // 版本判断
     const currentVersion = await this.getCurrentVersion();
     const isNewVersion = versionGt(version, currentVersion);
@@ -150,7 +151,7 @@ class Updater {
     return true;
   }
 
-  async getCurrentVersion () {
+  async getCurrentVersion() {
     try {
       const indexJson = await fsx.readJSON(this.env.index);
       return indexJson.version;
@@ -160,24 +161,22 @@ class Updater {
       return originalIndexJson.main;
     } catch (e) {}
 
-    return '';
+    return "";
   }
 
-  async getCurrentStc (reScan = false) {
+  async getCurrentStc(reScan = false) {
     let stcJson;
     try {
-      if (reScan) throw new Error('reScan');
+      if (reScan) throw new Error("reScan");
       stcJson = await fsx.readJSON(this.env.stc);
     } catch (e) {
-      const list = (await dirBFIterator(this.env.current)).filter(
-        (info) => !info.isDirectory
-      );
+      const list = (await dirBFIterator(this.env.current)).filter((info) => !info.isDirectory);
       const listWithMd5Hash = await Promise.all(
         list.map(async (info) => ({
           ...info,
           hash: await hasha.fromFile(info.path, {
-            algorithm: 'md5'
-          })
+            algorithm: "md5",
+          }),
         }))
       );
       stcJson = { list: listWithMd5Hash };
@@ -185,51 +184,49 @@ class Updater {
     return stcJson;
   }
 
-  getNextReleaseInfo () {
-    const http = require('http');
+  getNextReleaseInfo() {
+    const http = require("http");
     return new Promise((resolve, reject) => {
       http
-        .get(this.url + 'release.json', (response) => {
-          let todo = '';
+        .get(this.url + "release.json", (response) => {
+          let todo = "";
 
-          response.on('data', (chunk) => {
+          response.on("data", (chunk) => {
             todo += chunk;
           });
 
-          response.on('end', () => {
+          response.on("end", () => {
             try {
               resolve(JSON.parse(todo));
             } catch (e) {
-              reject(
-                new Error(`${this.url + 'release.json'} is not valid JSON`)
-              );
+              reject(new Error(`${this.url + "release.json"} is not valid JSON`));
             }
           });
         })
-        .on('error', reject);
+        .on("error", reject);
     });
   }
 
-  async getNextStc () {
-    const http = require('http');
+  async getNextStc() {
+    const http = require("http");
     return new Promise((resolve, reject) => {
       http
-        .get(this.url + 'stc.json', (response) => {
-          let todo = '';
+        .get(this.url + "stc.json", (response) => {
+          let todo = "";
 
-          response.on('data', (chunk) => {
+          response.on("data", (chunk) => {
             todo += chunk;
           });
 
-          response.on('end', () => {
+          response.on("end", () => {
             try {
               resolve(JSON.parse(todo));
             } catch (e) {
-              reject(new Error(`${this.url + 'stc.json'} is not valid JSON`));
+              reject(new Error(`${this.url + "stc.json"} is not valid JSON`));
             }
           });
         })
-        .on('error', reject);
+        .on("error", reject);
     });
   }
 
@@ -247,11 +244,9 @@ class Updater {
    *     children: Array
    *   }]}
    */
-  diff (currentStc, nextStc) {
+  diff(currentStc, nextStc) {
     const currentFileObj = {};
-    currentStc.list.forEach(
-      (info) => (currentFileObj[info.relativePath] = info)
-    );
+    currentStc.list.forEach((info) => (currentFileObj[info.relativePath] = info));
     return nextStc.list.filter((info) => {
       if (!currentFileObj[info.relativePath]) return true;
       if (currentFileObj[info.relativePath].hash !== info.hash) return true;
