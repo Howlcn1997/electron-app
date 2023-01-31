@@ -47,7 +47,7 @@ const configuration: webpack.Configuration = {
     new webpack.DefinePlugin({
       "process.type": '"index"',
     }),
-    // new ElectronBytenodePlugin(),
+    new ElectronBytenodePlugin(),
   ],
   node: {
     __dirname: false,

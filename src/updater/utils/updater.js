@@ -10,6 +10,7 @@ const version = require("../config/version.js");
 class Updater {
   constructor(props) {
     this.url = props.url;
+    this.stcName = props.stcName || "stc.json";
     this.env = {
       // 源文件
       source: props.source,
@@ -20,7 +21,7 @@ class Updater {
       // 本地文件引导文件
       index: path.join(props.dest, "index.json"),
       // 当前文件结构
-      stc: path.join(props.dest, "stc.json"),
+      stc: path.join(props.dest, this.stcName),
     };
     this.nextVersion = props.nextVersion;
     this.initSuccess = false;
@@ -63,7 +64,7 @@ class Updater {
     };
   }
 
-  async init({ depth = Infinity } = {}) {
+  async init() {
     if (this.initSuccess) return true;
     const currentVersion = await this.getCurrentVersion();
     const indexJsonExist = await fsx.pathExists(this.env.index);
@@ -95,6 +96,7 @@ class Updater {
 
   async checkUpdate() {
     try {
+      console.info(`updater [${this.url}] => [checking of updater start]`);
       // 获取版本依赖文件
       const nextInfoJson = await this.getNextReleaseInfo();
       const needUpdate = await this.needUpdateCheck(nextInfoJson);
@@ -106,6 +108,8 @@ class Updater {
       const nextStc = await this.getNextStc();
       const downloadList = await this.diff(currentStc, nextStc);
       if (!downloadList.length) return false;
+
+      console.info(`updater [${this.url}] => [downloading start] list.length is ${downloadList.length}`);
       // download
       // TODO 防止大量占用带宽导致客户端用户体验下降
       await Promise.all(
@@ -135,8 +139,11 @@ class Updater {
         next: this.env.next,
         updated: true,
       });
+      console.info(`updater [${this.url}] => [checking of updater success]`);
+      return true;
     } catch (e) {
       console.error("Failed to check for updater:", e);
+      return false;
     }
   }
 
@@ -144,9 +151,15 @@ class Updater {
     // 版本判断
     const currentVersion = await this.getCurrentVersion();
     const isNewVersion = versionGt(version, currentVersion);
+
+    console.info(`updater [${this.url}] => this version is ${currentVersion} of ${version}`);
+
     if (!isNewVersion) return false;
     // 灰度判断
     const currentStagingPercentage = await generateStagingPercentage(version);
+    console.info(
+      `updater [${this.url}] => this currentStagingPercentage is ${currentStagingPercentage} of ${stagingPercentage}`
+    );
     if (currentStagingPercentage > +stagingPercentage) return false;
     return true;
   }
@@ -211,7 +224,7 @@ class Updater {
     const http = require("http");
     return new Promise((resolve, reject) => {
       http
-        .get(this.url + "stc.json", (response) => {
+        .get(this.url + this.stcName, (response) => {
           let todo = "";
 
           response.on("data", (chunk) => {
@@ -222,7 +235,7 @@ class Updater {
             try {
               resolve(JSON.parse(todo));
             } catch (e) {
-              reject(new Error(`${this.url + "stc.json"} is not valid JSON`));
+              reject(new Error(`${this.url + this.stcName} is not valid JSON`));
             }
           });
         })

@@ -9,24 +9,6 @@ import webpackPaths from "./webpack.paths";
 const configuration: webpack.Configuration = {
   stats: "errors-only",
 
-  module: {
-    rules: [
-      // {
-      //   test: /\.[jt]sx?$/,
-      //   exclude: /node_modules/,
-      //   use: {
-      //     loader: "ts-loader",
-      //     options: {
-      //       transpileOnly: true,
-      //       compilerOptions: {
-      //         module: "esnext",
-      //       },
-      //     },
-      //   },
-      // },
-    ],
-  },
-
   output: {
     path: webpackPaths.srcPath,
     library: {

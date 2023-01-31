@@ -1,8 +1,7 @@
-const Updater = require('../utils/updater');
+const Updater = require("../utils/updater");
 class RendererUpdater extends Updater {
-  constructor (props) {
+  constructor(props) {
     super(props);
-    this.checkUpdate();
   }
 }
 

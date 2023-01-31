@@ -23,7 +23,6 @@
     "css-minimizer-webpack-plugin": "^4.2.2",
     "electron": "21.2.3",
     "electron-builder": "23.6.0",
-    "electron-localshortcut": "^3.2.1",
     "electron-rebuild": "^3.2.9",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.6.1",
@@ -48,7 +47,8 @@
     "hasha": "^5.2.2",
     "http-server": "^14.1.1",
     "lodash": "4.17.21",
-    "node-downloader-helper": "^2.1.6"
+    "node-downloader-helper": "^2.1.6",
+    "electron-localshortcut": "^3.2.1"
   },
   "build": {
     "appId": "com.neonless.app",

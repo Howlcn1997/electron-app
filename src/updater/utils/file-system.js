@@ -54,7 +54,6 @@ async function dirMerge(sourceA, sourceB, target, depth) {
   const listBObj = {};
   listB.forEach((pathInfo) => (listBObj[pathInfo.relativePath] = pathInfo));
   const mergeObj = { ...listBObj, ...listAObj };
-  console.log(listA);
 
   await fsx.ensureDir(target);
   await Promise.all(

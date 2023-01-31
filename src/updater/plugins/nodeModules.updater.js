@@ -5,8 +5,6 @@ const { download } = require("../utils/download");
 const { dirMerge } = require("../utils/file-system.js");
 const Updater = require("../utils/updater.js");
 
-const STC_NAME = "package-lock.json";
-
 /**
  * node_modules文件夹下必须有package-lock.json
  */
@@ -14,12 +12,12 @@ const STC_NAME = "package-lock.json";
 class NodeModulesUpdater extends Updater {
   constructor(props) {
     super(props);
-    this.env.stc = path.join(props.dest, STC_NAME);
-    this.checkUpdate();
+    this.stcName = "package-lock.json";
   }
 
   async checkUpdate() {
     try {
+      console.info(`updater [${this.url}] => [checking of updater start]`);
       // 获取版本依赖文件
       const nextInfoJson = await this.getNextReleaseInfo();
       const needUpdate = await this.needUpdateCheck(nextInfoJson);
@@ -31,6 +29,7 @@ class NodeModulesUpdater extends Updater {
       const nextStc = await this.getNextStc();
       const downloadList = await this.diff(currentStc, nextStc);
       if (!downloadList.length) return false;
+      console.info(`updater [${this.url}] => [downloading start] list.length is ${downloadList.length}`);
       // download
       // TODO 防止大量占用带宽导致客户端用户体验下降
       for (let i of downloadList) {
@@ -58,7 +57,7 @@ class NodeModulesUpdater extends Updater {
       // update package-lock.json
       await fsx.writeJson(this.env.stc, nextStc);
       // update next/package-lock.json
-      await fsx.writeJson(path.join(this.env.next, STC_NAME), nextStc);
+      await fsx.writeJson(path.join(this.env.next, this.stcName), nextStc);
       // update index.json
       const indexJson = await fsx.readJson(this.env.index);
       await fsx.writeJson(this.env.index, {
@@ -68,6 +67,7 @@ class NodeModulesUpdater extends Updater {
         next: this.env.next,
         updated: true,
       });
+      console.info(`updater [${this.url}] => [checking of updater success]`);
     } catch (e) {
       console.error("Failed to check for updater:", e);
     }
@@ -80,59 +80,13 @@ class NodeModulesUpdater extends Updater {
       stcJson = await fsx.readJSON(this.env.stc);
     } catch (e) {
       try {
-        stcJson = await fsx.readJSON(path.join(this.env.source, STC_NAME));
+        stcJson = await fsx.readJSON(path.join(this.env.source, this.stcName));
       } catch (e) {
-        console.error("Failed to getCurrentStc for updater");
+        console.error("Failed to getCurrentStc for updater:", e);
         stcJson = { packages: [] };
       }
     }
     return stcJson;
-  }
-
-  getNextReleaseInfo() {
-    const http = require("http");
-    return new Promise((resolve, reject) => {
-      http
-        .get(this.url + "release.json", (response) => {
-          let todo = "";
-
-          response.on("data", (chunk) => {
-            todo += chunk;
-          });
-
-          response.on("end", () => {
-            try {
-              resolve(JSON.parse(todo));
-            } catch (e) {
-              reject(new Error(`${this.url + "release.json"} is not valid JSON`));
-            }
-          });
-        })
-        .on("error", reject);
-    });
-  }
-
-  async getNextStc() {
-    const http = require("http");
-    return new Promise((resolve, reject) => {
-      http
-        .get(this.url + STC_NAME, (response) => {
-          let todo = "";
-
-          response.on("data", (chunk) => {
-            todo += chunk;
-          });
-
-          response.on("end", () => {
-            try {
-              resolve(JSON.parse(todo));
-            } catch (e) {
-              reject(new Error(`${this.url + STC_NAME} is not valid JSON`));
-            }
-          });
-        })
-        .on("error", reject);
-    });
   }
 
   diff(currentStc, nextStc) {

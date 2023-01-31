@@ -11,7 +11,7 @@ import baseConfig from "./webpack.config.base";
 import webpackPaths from "./webpack.paths";
 import checkNodeEnv from "../scripts/check-node-env";
 import deleteSourceMaps from "../scripts/delete-source-maps";
-// import ElectronBytenodePlugin from "../plugins/electron-bytenode-plugin";
+import ElectronBytenodePlugin from "../plugins/electron-bytenode-plugin";
 
 checkNodeEnv("production");
 deleteSourceMaps();
@@ -34,7 +34,7 @@ const configuration: webpack.Configuration = {
     },
   },
   resolve: {
-    modules: ['node_modules']
+    modules: ["node_modules"],
   },
 
   optimization: {
@@ -57,7 +57,7 @@ const configuration: webpack.Configuration = {
     new webpack.DefinePlugin({
       "process.type": '"main"',
     }),
-    // new ElectronBytenodePlugin(), 
+    new ElectronBytenodePlugin(),
   ],
   node: {
     __dirname: false,

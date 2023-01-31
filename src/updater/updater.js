@@ -4,7 +4,18 @@ const { dirBFIterator } = require("./utils/file-system");
 
 class Updater {
   constructor(props) {
-    this.plugins = props.plugins;
+    this.plugins = {};
+    this.pluginsConfig = {};
+
+    Object.keys(props.plugins).forEach((key) => {
+      const currentPlugin = props.plugins[key];
+      this.plugins[key] = currentPlugin;
+      if (Array.isArray(currentPlugin)) {
+        this.plugins[key] = currentPlugin[0];
+        this.pluginsConfig[key] = currentPlugin[1];
+      }
+    });
+
     this.sourceDir = props.sourceDir;
     this.destDir = props.destDir;
     this.exclude = props.exclude;
@@ -22,16 +33,27 @@ class Updater {
    * @param {Object} plugins {[key]: updaterInstance}
    */
   async init() {
-    const updateInfos = await this.updaterMapToUpdaterInfo(this.plugins);
-    const needBuild = await this.needBuilderNextISO(updateInfos);
+    // 异步检查更新
+    Promise.all(Object.values(this.plugins).map(async (instance) => await instance.checkUpdate())).then(
+      async (checkStatus) => {
+        if (checkStatus.some(Boolean)) {
+          console.info("[buildISO start]");
+          const updateInfos = await this.updaterMapToUpdaterInfo(this.plugins);
+          this.buildISO(updateInfos, `${this.updaterISOName}.next`);
+          console.info("[buildISO success]");
+        }
+      }
+    );
 
-    const currentISOPath = path.join(this.destDir, this.updaterISOName);
-    if (needBuild) {
-      // 生成资源镜像树
-      await this.buildISO(updateInfos, `${this.updaterISOName}.next`);
+    const updateInfos = await this.updaterMapToUpdaterInfo(this.plugins);
+    const canSwitch = await fsx.pathExists(path.join(this.destDir, `${this.updaterISOName}.next`));
+
+    if (canSwitch) {
       await this.switchISO();
+      console.info("[switchISO success]");
     }
-    const hasISO = needBuild || (await fsx.pathExists(currentISOPath));
+    const currentISOPath = path.join(this.destDir, this.updaterISOName);
+    const hasISO = await fsx.pathExists(currentISOPath);
 
     const plugins = { ...this.plugins };
     for (const key in plugins) {
@@ -74,17 +96,7 @@ class Updater {
   }
 
   /**
-   * 是否需要新建junctions树
-   * 当junctionsMap中任意更新器发生更新,则返回true
-   *
-   * @return {Boolean}
-   */
-  async needBuilderNextISO(updaterInfos) {
-    return updaterInfos.some((info) => info.updated);
-  }
-
-  /**
-   * 构建junctions
+   * 合并 安装目录与更新目录信息 并 构建junctions
    * @param {*} updaterInfos
    * @param {*} rootName
    */
@@ -98,7 +110,8 @@ class Updater {
         if (currentFullPath === this.sourceDir) return true;
         if (this.exclude && this.exclude(currentFullPath)) return false;
 
-        const relativePath = currentFullPath.replace(this.sourceDir + path.sep, "");
+        const relativePath = path.relative(this.sourceDir, currentFullPath);
+        // const relativePath = currentFullPath.replace(this.sourceDir + path.sep, "");
         const currentBasename = path.basename(currentFullPath);
         const currentDepth = relativePath.split(path.sep).length - 1;
 
@@ -106,7 +119,9 @@ class Updater {
         if (needIterate) return true;
 
         // 优先获取更新器中的路径
-        const sourceFullPath = updaterInfos.find((i) => i.relativePath === relativePath)?.path || currentFullPath;
+        const sourceFullPath =
+          updaterInfos.find((i) => path.join(i.relativePath) === relativePath)?.path || currentFullPath;
+
         const targetFullPath = path.join(this.destDir, rootName, relativePath);
 
         await fsx.remove(targetFullPath);
@@ -116,11 +131,12 @@ class Updater {
         // windows上需要使用junction来绕开管理员权限
         // windows上使用junction无法软连接文件
         // 不愧是你 windows！！
-        if (isDirectory) {
-          await fsx.symlink(sourceFullPath, targetFullPath, "junction");
-        } else {
-          await fsx.copy(sourceFullPath, targetFullPath);
-        }
+        // if (isDirectory) {
+        //   await fsx.symlink(sourceFullPath, targetFullPath, "junction");
+        // } else {
+        //   await fsx.copy(sourceFullPath, targetFullPath);
+        // }
+        await fsx.copy(sourceFullPath, targetFullPath);
         return false;
       });
     } catch (e) {
@@ -141,6 +157,7 @@ class Updater {
  * @param {Array<String>} paths
  *
  * @ps 前提条件 paths中的路径不存在包含关系  例如["dist/main","dist/main/index"]
+ * TODO 解决目录层级相同，文件名相同的bug
  */
 function pathsToTree(paths) {
   const resArr = [];
