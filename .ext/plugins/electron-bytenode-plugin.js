@@ -3,6 +3,7 @@ import path from "path";
 import bytenode from "bytenode";
 import { sources } from "webpack";
 import v8 from "v8";
+import * as babel from "@babel/core";
 
 v8.setFlagsFromString("--no-lazy");
 const { RawSource } = sources;
@@ -18,28 +19,28 @@ class ElectronBytenodePlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.emit.tapPromise(
-      "BytenodeWebpackPlugin",
-      async (compilation) => {
-        for (const filepath in compilation.assets) {
-          if (this.options.exclude(filepath)) continue;
-          if (!/\.js$/.test(filepath)) continue;
+    compiler.hooks.emit.tapPromise("BytenodeWebpackPlugin", async (compilation) => {
+      for (const filepath in compilation.assets) {
+        if (this.options.exclude(filepath)) continue;
+        if (!/\.js$/.test(filepath)) continue;
 
-          let source = Module.wrap(compilation.assets[filepath].source());
-          console.log("=====> ", filepath);
-          const jscCode = await bytenode.compileElectronCode(source);
-          const jscFilename = path.basename(filepath, ".js") + ".jsc";
-          const jscFilepath = filepath.replace(".js", ".jsc");
+        let source = Module.wrap(compilation.assets[filepath].source());
+        source =
+          babel.transform(source, {
+            plugins: ["@babel/plugin-transform-arrow-functions"],
+          }).code || source;
+        const jscCode = await bytenode.compileElectronCode(source);
+        const jscFilename = path.basename(filepath, ".js") + ".jsc";
+        const jscFilepath = filepath.replace(".js", ".jsc");
 
-          compilation.assets[jscFilepath] = {
-            source: () => jscCode,
-            size: () => jscCode.length,
-          };
-          source = `require('bytenode');\nrequire('./${jscFilename}');`;
-          compilation.assets[filepath] = new RawSource(source);
-        }
+        compilation.assets[jscFilepath] = {
+          source: () => jscCode,
+          size: () => jscCode.length,
+        };
+        source = `require('bytenode');\nrequire('./${jscFilename}');`;
+        compilation.assets[filepath] = new RawSource(source);
       }
-    );
+    });
   }
 }
 

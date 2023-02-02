@@ -6,7 +6,6 @@ import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import baseConfig from "./webpack.config.base";
 import webpackPaths from "./webpack.paths";
 import checkNodeEnv from "../scripts/check-node-env";
-import ElectronBytenodePlugin from "../plugins/electron-bytenode-plugin";
 
 checkNodeEnv("production");
 
@@ -47,7 +46,6 @@ const configuration: webpack.Configuration = {
     new webpack.DefinePlugin({
       "process.type": '"index"',
     }),
-    new ElectronBytenodePlugin(),
   ],
   node: {
     __dirname: false,

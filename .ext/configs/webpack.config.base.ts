@@ -5,6 +5,7 @@
 import webpack from "webpack";
 import nodeExternals from "webpack-node-externals";
 import webpackPaths from "./webpack.paths";
+import ElectronBytenodePlugin from "../plugins/electron-bytenode-plugin";
 
 const configuration: webpack.Configuration = {
   stats: "errors-only",
@@ -25,6 +26,7 @@ const configuration: webpack.Configuration = {
       NODE_ENV: "production",
       NODE_PLATFORM: process.platform,
     }),
+    new ElectronBytenodePlugin(),
   ],
 };
 
